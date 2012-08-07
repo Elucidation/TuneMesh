@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>img{ height: 100px; float: left; }</style>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Test</title>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src="http://platform.twitter.com/anywhere.js?id=NKxFEfqTZEmPNQuslb7lA&v=1" type="text/javascript"></script>
+</head>
+<body>
+<!--Data : <div id="data"></div>-->
+<h1>Testing tweeting for TuneMesh</h1>
+
+<p>Enter a song name, then click Tweet as self (may need to log into twitter).</p>
+<p>It will post a tweet as you of form '#TuneMesh Let's play [song name] at [DateTime+10s]!'</p>
+
+<div>
+<form id="tweetbox">
+
+  <p><input name="tweet" placeholder="Enter song..." required></input> 
+  <input type="submit" id="tweet_submit" value="Tweet as self"></input> <span id="twitter-connect-placeholder"></span>
+</p>
+
+</form>
+</div>
+<script type="text/javascript">
+
+twttr.anywhere(function(T) {
+
+
+  T("#loginbutton").connectButton({
+    authComplete: function(user) {
+      setUser(user.screenName);
+    }
+  });
+
+  update(T);
+
+  $('#tweetbox').submit(function () {
+    var inputText = $(this).find('input[name=tweet]').val();
+    var tweet = generateSyncMsg(inputText);
+    T.requireConnect(function() {
+      T.Status.update(tweet, {
+        success: function (tweet) {alert('Win');},
+        error: function (tweet) {alert('Fail');} 
+      });
+    });
+    update(T);
+    return false;
+  });
+
+});
+
+function update(T) {
+  console.log("update called");
+  if (T.isConnected()) {
+    setUser(T.currentUser.data('screen_name'));
+  } else {
+    $("#twitter-connect-placeholder").text("Not logged in.");
+  }
+}
+
+function setUser(name) {
+  $("#twitter-connect-placeholder").html('Logged in as <b>'+name+"</b>"); 
+}
+
+function signOut() {
+  twttr.anywhere.signOut();
+  twttr.anywhere(function(T) {
+    update(T);
+  });
+}
+
+function generateSyncMsg(songname) {
+  var t = new Date();
+  var delay_in_millisec = 10*1000; // sync to start in 10 sec
+  t.setTime(t.getTime()+delay_in_millisec);
+  var playTime = (t).toLocaleString();
+  var msg = "#TuneMesh Let's play [" + songname + "] at ["+playTime+"]!";
+
+  return msg; 
+}
+
+
+function testSync() {
+  var stuff = generateSyncMsg("testSong");
+  console.log("Blah : " +stuff);
+  document.getElementById("bloop").innerHTML = stuff;
+}
+
+</script>
+
+<span id="loginbutton"></span>
+<button type="button" onclick="signOut();">Sign out of Twitter</button>
+
+<button type="button" onclick="testSync()">Test Syncing</button>
+<div id="bloop"></div>
+</script>
+</body>
+</html>
