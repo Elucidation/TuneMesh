@@ -73,7 +73,7 @@ function signOut() {
 
 function generateSyncMsg(songname) {
   var t = new Date();
-  var delay_in_millisec = 10*1000; // sync to start in 10 sec
+  var delay_in_millisec = 60*1000; // sync to start in N sec
   t.setTime(t.getTime()+delay_in_millisec);
   var playTime = (t).toLocaleString();
   var msg = "#TuneMesh Let's play [" + songname + "] at ["+playTime+"]!";
